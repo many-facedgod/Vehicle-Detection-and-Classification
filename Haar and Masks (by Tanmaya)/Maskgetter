@@ -1,0 +1,43 @@
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Oct  2 01:50:20 2016
+
+@author: tanmaya
+"""
+import cv2
+import numpy as np
+f=open("list.txt", "r")
+bg=cv2.imread("back.jpg", 0)
+fgbg = cv2.createBackgroundSubtractorKNN()
+thresh=150
+fgbg.apply(bg)
+fgbg.apply(bg)
+fgbg.apply(bg)
+fgbg.apply(bg)
+#orb=cv2.ORB_create()
+for q,x in enumerate(f):
+    x=x.strip()
+    img=cv2.imread("Grayscale/"+x,0)
+    mask=fgbg.apply(img)
+    _,mask=cv2.threshold(mask, 50, 255, cv2.THRESH_BINARY)#+cv2.THRESH_OTSU)
+    kernel=cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5,5))
+    mask=cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+    mask=cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+    kernel2=cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3,3))
+    mask=cv2.morphologyEx(mask, cv2.MORPH_OPEN,kernel2)
+    _,c,_=cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    #print c
+    mask=np.zeros(mask.shape, dtype=mask.dtype)
+    y=filter(lambda c: cv2.contourArea(c)>thresh, c)
+    cv2.drawContours(mask, y, -1, (255,255,255), -1)
+    #kernel=cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3,3))
+    #mask=cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+    #kp=orb.detect(img, mask)
+    #kp, des=orb.compute(img, kp)
+    #applied=np.zeros(img.shape,dtype=img.dtype)
+    #applied=cv2.drawKeypoints(img, kp,applied ,flags=0)
+    #mask=np.array(np.absolute(np.array(img, dtype="int")-np.array(bg, dtype="int")), dtype="uint8")
+    #_,mask=cv2.threshold(np.array(np.absolute(np.array(img, dtype="int")-np.array(bg, dtype="int")), dtype="uint8"),70,255,cv2.THRESH_BINARY)
+    cv2.imwrite("Masks/"+str(q)+".pgm", mask)
+    #cv2.imwrite("Applied/"+x, applied)
