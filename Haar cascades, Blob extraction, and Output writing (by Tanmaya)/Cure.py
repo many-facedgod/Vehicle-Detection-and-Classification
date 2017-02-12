@@ -6,6 +6,8 @@ Created on Sun Nov 13 17:32:57 2016
 @author: tanmaya
 """
 
+#Puts a threshold on the area of the connected components.
+
 import numpy as np
 import cv2
 
